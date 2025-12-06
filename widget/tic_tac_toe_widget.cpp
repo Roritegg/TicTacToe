@@ -1,20 +1,42 @@
-#include "D:\QDocs\TicTacToe\widget\tic_tac_toe_widget.h"
+#include "tic_tac_toe_widget.h"
 #include <QMessageBox>
 #include <QFont>
+#include <QHeaderView>
 
-TicTacToeWidget::TicTacToeWidget(QWidget *parent)
-    : QWidget(parent) {
-
+TicTacToeWidget::TicTacToeWidget(QWidget *parent) : QWidget(parent) {
     mainLayout = new QVBoxLayout(this);
 
     createControlPanel();
 
+    createStatsPanel();
+
     createGameBoard();
 
     updateStatus();
+    updateStatsDisplay();
 
-    setWindowTitle("Крестики-Нолики");
-    setMinimumSize(400, 500);
+    setWindowTitle("Крестики-Нолики со статистикой");
+    setMinimumSize(500, 600);
+}
+
+void TicTacToeWidget::createStatsPanel() {
+    statsGroupBox = new QGroupBox("Статистика", this);
+    QVBoxLayout *statsLayout = new QVBoxLayout(statsGroupBox);
+
+    statsTable = new QTableWidget(7, 2, statsGroupBox);
+    statsTable->setHorizontalHeaderLabels(QStringList() << "Параметр" << "Значение");
+    statsTable->verticalHeader()->setVisible(false);
+    statsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    resetStatsButton = new QPushButton("Сбросить статистику", statsGroupBox);
+    resetStatsButton->setStyleSheet("QPushButton { background-color: #FF6B6B; color: white; padding: 5px; }");
+
+    statsLayout->addWidget(statsTable);
+    statsLayout->addWidget(resetStatsButton);
+
+    mainLayout->addWidget(statsGroupBox);
+
+    connect(resetStatsButton, &QPushButton::clicked, this, &TicTacToeWidget::onResetStatsClicked);
 }
 
 void TicTacToeWidget::createControlPanel() {
@@ -80,6 +102,8 @@ void TicTacToeWidget::onCellClicked() {
         updateStatus();
 
         if (game.isGameOver()) {
+            updateStatsDisplay();
+
             if (game.isDraw()) {
                 QMessageBox::information(this, "Игра окончена", "Ничья!");
             } else {
@@ -95,6 +119,11 @@ void TicTacToeWidget::onResetClicked() {
     game.resetGame();
     updateBoard();
     updateStatus();
+}
+
+void TicTacToeWidget::onResetStatsClicked() {
+    game.resetStats();
+    updateStatsDisplay();
 }
 
 void TicTacToeWidget::updateBoard() {
@@ -146,4 +175,57 @@ void TicTacToeWidget::updateStatus() {
         QString("QLabel { color: %1; font-weight: bold; }")
             .arg(currentPlayer == "X" ? "#FF6B6B" : "#4ECDC4")
         );
+}
+
+void TicTacToeWidget::updateStatsDisplay() {
+    const GameStatistics& stats = game.getStats();
+
+    statsTable->clearContents();
+
+    statsTable->setRowCount(7);
+
+    int row = 0;
+
+    QTableWidgetItem *totalGamesParam = new QTableWidgetItem("Всего игр");
+    QTableWidgetItem *totalGamesValue = new QTableWidgetItem(QString::number(stats.totalGames));
+    statsTable->setItem(row++, 0, totalGamesParam);
+    statsTable->setItem(row-1, 1, totalGamesValue);
+
+    QTableWidgetItem *xWinsParam = new QTableWidgetItem("Побед X");
+    QTableWidgetItem *xWinsValue = new QTableWidgetItem(QString::number(stats.xWins));
+    statsTable->setItem(row++, 0, xWinsParam);
+    statsTable->setItem(row-1, 1, xWinsValue);
+
+    QTableWidgetItem *oWinsParam = new QTableWidgetItem("Побед O");
+    QTableWidgetItem *oWinsValue = new QTableWidgetItem(QString::number(stats.oWins));
+    statsTable->setItem(row++, 0, oWinsParam);
+    statsTable->setItem(row-1, 1, oWinsValue);
+
+    QTableWidgetItem *drawsParam = new QTableWidgetItem("Ничьих");
+    QTableWidgetItem *drawsValue = new QTableWidgetItem(QString::number(stats.draws));
+    statsTable->setItem(row++, 0, drawsParam);
+    statsTable->setItem(row-1, 1, drawsValue);
+
+    QTableWidgetItem *xWinRateParam = new QTableWidgetItem("% побед X");
+    QTableWidgetItem *xWinRateValue = new QTableWidgetItem(QString::number(stats.getXWinRate(), 'f', 1) + "%");
+    xWinRateValue->setForeground(Qt::blue);
+    xWinRateValue->setFont(QFont("Arial", 10, QFont::Bold));
+    statsTable->setItem(row++, 0, xWinRateParam);
+    statsTable->setItem(row-1, 1, xWinRateValue);
+
+    QTableWidgetItem *oWinRateParam = new QTableWidgetItem("% побед O");
+    QTableWidgetItem *oWinRateValue = new QTableWidgetItem(QString::number(stats.getOWinRate(), 'f', 1) + "%");
+    oWinRateValue->setForeground(Qt::blue);
+    oWinRateValue->setFont(QFont("Arial", 10, QFont::Bold));
+    statsTable->setItem(row++, 0, oWinRateParam);
+    statsTable->setItem(row-1, 1, oWinRateValue);
+
+    QTableWidgetItem *drawRateParam = new QTableWidgetItem("% ничьих");
+    QTableWidgetItem *drawRateValue = new QTableWidgetItem(QString::number(stats.getDrawRate(), 'f', 1) + "%");
+    drawRateValue->setForeground(Qt::darkYellow);
+    statsTable->setItem(row++, 0, drawRateParam);
+    statsTable->setItem(row-1, 1, drawRateValue);
+
+    statsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    statsTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 }

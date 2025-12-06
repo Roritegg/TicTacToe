@@ -1,7 +1,9 @@
 #include "tic_tac_toe.h"
 
-TicTacToe::TicTacToe() : currentPlayer(Player::X), gameOver(false), winner(Player::None) {
+TicTacToe::TicTacToe() : currentPlayer(Player::X), gameOver(false),
+    winner(Player::None), moveCount(0) {
     board.resize(BOARD_SIZE, std::vector<Player>(BOARD_SIZE, Player::None));
+    stats = GameStatistics();
 }
 
 bool TicTacToe::makeMove(int row, int col, Player player) {
@@ -10,13 +12,16 @@ bool TicTacToe::makeMove(int row, int col, Player player) {
     }
 
     board[row][col] = player;
+    moveCount++;
 
     if (checkWin(player)) {
         gameOver = true;
         winner = player;
+        updateStats();
     } else if (checkDraw()) {
         gameOver = true;
         winner = Player::None;
+        updateStats();
     } else {
         currentPlayer = (player == Player::X) ? Player::O : Player::X;
     }
@@ -52,6 +57,11 @@ void TicTacToe::resetGame() {
     currentPlayer = Player::X;
     gameOver = false;
     winner = Player::None;
+    moveCount = 0;
+}
+
+void TicTacToe::resetStats() {
+    stats = GameStatistics();
 }
 
 bool TicTacToe::checkWin(Player player) const {
@@ -102,4 +112,16 @@ bool TicTacToe::isValidMove(int row, int col) const {
     return row >= 0 && row < BOARD_SIZE &&
            col >= 0 && col < BOARD_SIZE &&
            board[row][col] == Player::None;
+}
+
+void TicTacToe::updateStats() {
+    stats.totalGames++;
+
+    if (winner == Player::X) {
+        stats.xWins++;
+    } else if (winner == Player::O) {
+        stats.oWins++;
+    } else {
+        stats.draws++;
+    }
 }

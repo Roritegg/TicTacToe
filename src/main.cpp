@@ -4,10 +4,10 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-
     TicTacToeWidget window;
     window.show();
 
     return app.exec();
 }
+
 

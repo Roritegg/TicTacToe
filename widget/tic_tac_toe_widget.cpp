@@ -166,7 +166,7 @@ void TicTacToeWidget::updateStatus() {
         }
     } else {
         statusLabel->setText("Игра идет...");
-        statusLabel->setStyleSheet("QLabel { color: #333; }");
+        statusLabel->setStyleSheet("QLabel { color: #FFFFFF; font-weight: bold }");
     }
 
     QString currentPlayer = (game.getCurrentPlayer() == Player::X) ? "X" : "O";
@@ -208,7 +208,7 @@ void TicTacToeWidget::updateStatsDisplay() {
 
     QTableWidgetItem *xWinRateParam = new QTableWidgetItem("% побед X");
     QTableWidgetItem *xWinRateValue = new QTableWidgetItem(QString::number(stats.getXWinRate(), 'f', 1) + "%");
-    xWinRateValue->setForeground(Qt::blue);
+    xWinRateValue->setForeground(Qt::red);
     xWinRateValue->setFont(QFont("Arial", 10, QFont::Bold));
     statsTable->setItem(row++, 0, xWinRateParam);
     statsTable->setItem(row-1, 1, xWinRateValue);
@@ -222,7 +222,7 @@ void TicTacToeWidget::updateStatsDisplay() {
 
     QTableWidgetItem *drawRateParam = new QTableWidgetItem("% ничьих");
     QTableWidgetItem *drawRateValue = new QTableWidgetItem(QString::number(stats.getDrawRate(), 'f', 1) + "%");
-    drawRateValue->setForeground(Qt::darkYellow);
+    drawRateValue->setForeground(Qt::yellow);
     statsTable->setItem(row++, 0, drawRateParam);
     statsTable->setItem(row-1, 1, drawRateValue);
 

@@ -1,22 +1,16 @@
-cmake_minimum_required(VERSION 3.16)
-project(TicTacToe VERSION 1.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.5)
+project(TicTacToe)
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
 
-add_executable(TicTacToe
-    src/main.cpp
-    src/tic_tac_toe.cpp
-    src/tic_tac_toe.h
-    widget/tic_tac_toe_widget.cpp
-    widget/tic_tac_toe_widget.h
-)
+file(GLOB SOURCES "src/*.cpp")
+file(GLOB HEADERS "src/*.h")
 
-target_link_libraries(TicTacToe Qt6::Core Qt6::Widgets)
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-target_include_directories(TicTacToe PRIVATE widget)
+target_link_libraries(${PROJECT_NAME} Qt6::Core Qt6::Widgets)
 
 add_subdirectory(tests)
